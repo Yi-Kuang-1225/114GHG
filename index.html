@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>永續科-114年溫室氣體盤查分析儀表板</title>
+    <!-- 引入 Tailwind CSS 進行快速且美觀的樣式排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 用於繪製互動式圖表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 自訂字體與捲軸樣式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 自訂側邊欄選中狀態 */
+        .nav-item.active {
+            background-color: #e5e7eb;
+            color: #111827;
+            font-weight: 700;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- 左側導覽列 (Sidebar) -->
+    <aside class="w-64 bg-white shadow-xl flex-shrink-0 flex flex-col transition-all duration-300">
+        <div class="h-16 flex items-center px-6 border-b border-gray-100">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                114年-碳盤查儀表板
+            </h1>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-2 px-3">
+                <li>
+                    <button onclick="switchTab('total')" id="nav-total" class="nav-item active w-full flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        綜合盤查數據
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('scope1')" id="nav-scope1" class="nav-item w-full flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        範疇一 (直接排放)
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('scope2')" id="nav-scope2" class="nav-item w-full flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        範疇二 (外購電力)
+                    </button>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
+            資料年度: 114年 <br> 單位: 噸 CO2e
+        </div>
+    </aside>
+
+    <!-- 主要內容區 (Main Content) -->
+    <main class="flex-1 overflow-y-auto p-6 md:p-10 relative">
+        
+        <!-- 分頁 1: 綜合總覽 -->
+        <div id="tab-total" class="tab-content active">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">各單位總盤查數據 (範疇一 + 範疇二)-永續科</h2>
+                <p class="text-gray-500 mt-2">全機關溫室氣體排放量彙整，快速掌握整體碳排結構與重點單位。</p>
+            </header>
+
+            <!-- KPI 卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-indigo-500">
+                    <p class="text-sm text-gray-500 font-medium">總排放當量 (噸 CO2e)</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">26,661.25</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-emerald-500">
+                    <p class="text-sm text-gray-500 font-medium">範疇一總計 (直接排放)</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">2,618.08 <span class="text-sm font-normal text-gray-400 ml-1">(8.8%)</span></p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+                    <p class="text-sm text-gray-500 font-medium">範疇二總計 (外購電力)</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">27,043.17 <span class="text-sm font-normal text-gray-400 ml-1">(91.2%)</span></p>
+                </div>
+            </div>
+
+            <!-- 圖表區塊 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">各單位碳排放總量排名 (堆疊長條圖)</h3>
+                <div class="relative h-96 w-full">
+                    <canvas id="totalChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">💡 圖表顯示「園管局」的範疇二（外購電力）佔據極大比例，是減碳的首要關鍵。</p>
+            </div>
+        </div>
+
+        <!-- 分頁 2: 範疇一分析 -->
+        <div id="tab-scope1" class="tab-content">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 mr-3"></span>
+                    範疇一 (直接排放) 分析-永續科
+                </h2>
+                <p class="text-gray-500 mt-2">聚焦於公務車用油、冷媒逸散與廢水處理等直接碳排來源。</p>
+            </header>
+
+            <!-- KPI 卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">最高排放單位</p>
+                            <p class="text-2xl font-bold text-emerald-600 mt-1">水利署</p>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">佔 40.6%</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">1,065.2 噸</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">最大宗排放源</p>
+                            <p class="text-2xl font-bold text-orange-500 mt-1">車用汽油</p>
+                        </div>
+                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">佔 44.0%</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">1,155.8 噸</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">次要排放源</p>
+                            <p class="text-2xl font-bold text-blue-400 mt-1">冷媒逸散</p>
+                        </div>
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">約佔 33.8%</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">各類冷媒合計 887 噸</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 單位排名長條圖 -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">單位排放當量排名 (範疇一)</h3>
+                    <div class="relative h-80 w-full">
+                        <canvas id="scope1BarChart"></canvas>
+                    </div>
+                </div>
+                <!-- 排放源結構圓餅圖 -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">整體排放源結構佔比</h3>
+                    <div class="relative h-80 w-full flex justify-center">
+                        <canvas id="scope1PieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分頁 3: 範疇二分析 -->
+        <div id="tab-scope2" class="tab-content">
+            <header class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
+                    範疇二 (外購電力) 分析-永續科
+                </h2>
+                <p class="text-gray-500 mt-2">機關最大的碳排來源，主要反映各單位的用電與耗能狀況。</p>
+            </header>
+
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8 flex items-start">
+                <svg class="w-6 h-6 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                    <h4 class="text-blue-800 font-bold">減碳策略核心提示</h4>
+                    <p class="text-blue-600 text-sm mt-1">範疇二總排碳高達 27,043 噸。其中<b>園管局 (18,897噸)</b> 因轄管多個工業區大型污水處理廠，耗電量極大。建議優先針對污水廠進行設備節能診斷、汰換老舊馬達，並評估提高綠電採購比例。</p>
+                </div>
+            </div>
+
+            <!-- 單位排名長條圖 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">單位排放當量排名 (範疇二外購電力)</h3>
+                <div class="relative h-96 w-full">
+                    <canvas id="scope2BarChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 數據明細表 (前五大) -->
+            <div class="bg-white rounded-xl shadow-sm p-6 overflow-hidden">
+                 <h3 class="text-lg font-bold text-gray-700 mb-4">耗能前五大單位數據明細</h3>
+                 <div class="overflow-x-auto">
+                     <table class="min-w-full divide-y divide-gray-200 text-sm">
+                         <thead class="bg-gray-50">
+                             <tr>
+                                 <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">單位名稱</th>
+                                 <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">外購電力碳排 (噸 CO2e)</th>
+                                 <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">佔範疇二比例</th>
+                             </tr>
+                         </thead>
+                         <tbody class="bg-white divide-y divide-gray-200">
+                             <tr>
+                                 <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-800">1. 園管局</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-right text-blue-600 font-medium">18,897.37</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-500 h-2.5 rounded-full" style="width: 67%"></div></div><span class="text-xs text-gray-500 mt-1 block">67.0%</span></td>
+                             </tr>
+                             <tr>
+                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">2. 水利署</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">3,172.56</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-400 h-2.5 rounded-full" style="width: 11%"></div></div><span class="text-xs text-gray-500 mt-1 block">11.2%</span></td>
+                             </tr>
+                             <tr>
+                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">3. 標準局</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">2,071.46</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-300 h-2.5 rounded-full" style="width: 7%"></div></div><span class="text-xs text-gray-500 mt-1 block">7.3%</span></td>
+                             </tr>
+                             <tr>
+                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">4. 智慧局</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">1,174.65</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-200 h-2.5 rounded-full" style="width: 4%"></div></div><span class="text-xs text-gray-500 mt-1 block">4.2%</span></td>
+                             </tr>
+                             <tr>
+                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">5. 部本部</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">887.04</td>
+                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-200 h-2.5 rounded-full" style="width: 3%"></div></div><span class="text-xs text-gray-500 mt-1 block">3.1%</span></td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript 資料與互動邏輯 -->
+    <script>
+        // --- 核心資料集 ---
+        const data = [
+            { name: '園管局', s1: 799.76, s2: 18901.37 },
+            { name: '水利署', s1: 1065.20, s2: 3172.56 },
+            { name: '標準局', s1: 400.33, s2: 2071.46 },
+            { name: '智慧局', s1: 85.99, s2: 1174.65 },
+            { name: '部本部', s1: 103.80, s2: 887.04 },
+            { name: '貿易署', s1: 20.99, s2: 575.48 },
+            { name: '地礦中心', s1: 58.51, s2: 320.44 },
+            { name: '產發署', s1: 17.97, s2: 285.50 },
+            { name: '商業署', s1: 15.76, s2: 228.61 },
+            { name: '中企署', s1: 2.91, s2: 159.91 },
+            { name: '能源署', s1: 5.45, s2: 149.58 },
+            { name: '經培所', s1: 38.72, s2: 117.28 },
+            { name: '投審司', s1: 5.58, s2: 75.73 },
+            { name: '國營司', s1: 1.96, s2: 64.15 },
+            { name: '投資司', s1: 1.76, s2: 33.38 }
+        ];
+
+        // 範疇一 細部排放源資料 (彙整)
+        const scope1Sources = {
+            labels: ['車用汽油', '冷媒 R410A', '廢水處理(BOD)', '冷媒 R134A', '柴油', '冷媒 R32', '其他'],
+            data: [1155.87, 375.8, 316.63, 276.1, 236.7, 235.5, 28.1] 
+        };
+
+        // --- Chart 實例儲存區 (避免重複渲染錯誤) ---
+        let totalChartInst = null;
+        let s1BarChartInst = null;
+        let s1PieChartInst = null;
+        let s2BarChartInst = null;
+
+        // 全域 Chart.js 設定
+        Chart.defaults.font.family = "'Noto Sans TC', sans-serif";
+        Chart.defaults.color = '#6b7280';
+
+        // --- 初始化圖表函數 ---
+
+        function renderTotalChart() {
+            const ctx = document.getElementById('totalChart').getContext('2d');
+            
+            // 依總排放量排序
+            const sortedData = [...data].sort((a, b) => (b.s1 + b.s2) - (a.s1 + a.s2));
+            
+            if (totalChartInst) totalChartInst.destroy();
+            totalChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedData.map(d => d.name),
+                    datasets: [
+                        {
+                            label: '範疇一 (直接排放)',
+                            data: sortedData.map(d => d.s1),
+                            backgroundColor: '#10b981', // emerald-500
+                            borderWidth: 0,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '範疇二 (外購電力)',
+                            data: sortedData.map(d => d.s2),
+                            backgroundColor: '#3b82f6', // blue-500
+                            borderWidth: 0,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, border: { dash: [4, 4] }, grid: { color: '#e5e7eb' } }
+                    },
+                    plugins: {
+                        tooltip: { mode: 'index', intersect: false },
+                        legend: { position: 'top', align: 'end' }
+                    }
+                }
+            });
+        }
+
+        function renderScope1Charts() {
+            // 1. 範疇一 柱狀圖 (獨立排序)
+            const ctxBar = document.getElementById('scope1BarChart').getContext('2d');
+            const sortedS1 = [...data].sort((a, b) => b.s1 - a.s1);
+
+            if (s1BarChartInst) s1BarChartInst.destroy();
+            s1BarChartInst = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: sortedS1.map(d => d.name),
+                    datasets: [{
+                        label: '範疇一排放當量',
+                        data: sortedS1.map(d => d.s1),
+                        backgroundColor: '#34d399', // emerald-400
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', // 水平長條圖
+                    scales: {
+                        x: { grid: { borderDash: [4, 4], color: '#e5e7eb' } },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 2. 範疇一 圓餅圖
+            const ctxPie = document.getElementById('scope1PieChart').getContext('2d');
+            if (s1PieChartInst) s1PieChartInst.destroy();
+            s1PieChartInst = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: scope1Sources.labels,
+                    datasets: [{
+                        data: scope1Sources.data,
+                        backgroundColor: [
+                            '#f97316', // orange-500 (汽油)
+                            '#0ea5e9', // sky-500 (R410)
+                            '#10b981', // emerald-500 (廢水)
+                            '#8b5cf6', // violet-500 (R134)
+                            '#ef4444', // red-500 (柴油)
+                            '#3b82f6', // blue-500 (R32)
+                            '#9ca3af'  // gray-400 (其他)
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + ' 噸';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderScope2Chart() {
+            const ctx = document.getElementById('scope2BarChart').getContext('2d');
+            const sortedS2 = [...data].sort((a, b) => b.s2 - a.s2);
+
+            if (s2BarChartInst) s2BarChartInst.destroy();
+            s2BarChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedS2.map(d => d.name),
+                    datasets: [{
+                        label: '範疇二排放當量 (噸)',
+                        data: sortedS2.map(d => d.s2),
+                        backgroundColor: '#60a5fa', // blue-400
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            type: 'logarithmic', // 因為園管局數值太大，使用對數座標讓其他單位也清晰可見
+                            title: { display: true, text: '對數級距 (Log Scale)' }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + ' 噸 CO2e';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 分頁切換邏輯 ---
+        function switchTab(tabId) {
+            // 隱藏所有內容
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // 取消所有導覽列選取狀態
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // 顯示目標內容與設定選取狀態
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('nav-' + tabId).classList.add('active');
+
+            // 根據切換的分頁，延遲一點點渲染圖表(確保 DOM 已顯示取得正確寬高)
+            setTimeout(() => {
+                if (tabId === 'total') renderTotalChart();
+                if (tabId === 'scope1') renderScope1Charts();
+                if (tabId === 'scope2') renderScope2Chart();
+            }, 50);
+        }
+
+        // 初始化預設顯示總覽
+        window.onload = () => {
+            renderTotalChart();
+        };
+
+    </script>
+</body>
+</html>
