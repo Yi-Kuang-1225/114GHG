@@ -33,12 +33,17 @@
             font-weight: 700;
             border-left: 4px solid #3b82f6;
         }
+        /* 捲動條美化 (針對資料表) */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
     <!-- 左側導覽列 (Sidebar) -->
-    <aside class="w-64 bg-white shadow-xl flex-shrink-0 flex flex-col transition-all duration-300">
+    <aside class="w-64 bg-white shadow-xl flex-shrink-0 flex flex-col transition-all duration-300 z-20">
         <div class="h-16 flex items-center px-6 border-b border-gray-100">
             <h1 class="text-xl font-bold text-gray-800 flex items-center">
                 <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -62,7 +67,7 @@
                 <li>
                     <button onclick="switchTab('scope2')" id="nav-scope2" class="nav-item w-full flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
                         <svg class="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        範疇二 (外購電力)
+                        範疇二 (細部用電分析)
                     </button>
                 </li>
             </ul>
@@ -75,7 +80,7 @@
     <!-- 主要內容區 (Main Content) -->
     <main class="flex-1 overflow-y-auto p-6 md:p-10 relative">
         
-        <!-- 分頁 1: 綜合總覽 -->
+        <!-- ================= 分頁 1: 綜合總覽 ================= -->
         <div id="tab-total" class="tab-content active">
             <header class="mb-8">
                 <h2 class="text-3xl font-bold text-gray-800">各單位總盤查數據 (範疇一 + 範疇二)-永續科</h2>
@@ -86,15 +91,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-indigo-500">
                     <p class="text-sm text-gray-500 font-medium">總排放當量 (噸 CO2e)</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2">26,661.25</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">29,661.25</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-emerald-500">
                     <p class="text-sm text-gray-500 font-medium">範疇一總計 (直接排放)</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2">2,618.08 <span class="text-sm font-normal text-gray-400 ml-1">(8.8%)</span></p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">2,624.72 <span class="text-sm font-normal text-gray-400 ml-1">(8.5%)</span></p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
                     <p class="text-sm text-gray-500 font-medium">範疇二總計 (外購電力)</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2">27,043.17 <span class="text-sm font-normal text-gray-400 ml-1">(91.2%)</span></p>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">27,043.17 <span class="text-sm font-normal text-gray-400 ml-1">(91.5%)</span></p>
                 </div>
             </div>
 
@@ -108,7 +113,7 @@
             </div>
         </div>
 
-        <!-- 分頁 2: 範疇一分析 -->
+        <!-- ================= 分頁 2: 範疇一分析 ================= -->
         <div id="tab-scope1" class="tab-content">
             <header class="mb-8">
                 <h2 class="text-3xl font-bold text-gray-800 flex items-center">
@@ -170,80 +175,98 @@
             </div>
         </div>
 
-        <!-- 分頁 3: 範疇二分析 -->
+        <!-- ================= 分頁 3: 範疇二分析 (細部機構) ================= -->
         <div id="tab-scope2" class="tab-content">
-            <header class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 flex items-center">
-                    <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
-                    範疇二 (外購電力) 分析-永續科
-                </h2>
-                <p class="text-gray-500 mt-2">機關最大的碳排來源，主要反映各單位的用電與耗能狀況。</p>
+            <header class="mb-8 flex justify-between items-end border-b border-gray-200 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>
+                        範疇二 (外購電力) 細部機構分析-永續科
+                    </h2>
+                    <p class="text-gray-500 mt-2">機關最大的碳排來源，針對 140+ 個附屬機構/設施之耗電碳排進行深度解析。</p>
+                </div>
+                <button class="px-4 py-2 bg-white border border-gray-200 text-blue-600 rounded-md shadow-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2" onclick="window.print()">
+                    匯出報告
+                </button>
             </header>
 
-            <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8 flex items-start">
-                <svg class="w-6 h-6 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <!-- Strategy Alert -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl shadow-sm text-sm text-gray-700 flex gap-3 items-start mb-8">
+                <svg class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <div>
-                    <h4 class="text-blue-800 font-bold">減碳策略核心提示</h4>
-                    <p class="text-blue-600 text-sm mt-1">範疇二總排碳高達 27,043 噸。其中<b>園管局 (18,897噸)</b> 因轄管多個工業區大型污水處理廠，耗電量極大。建議優先針對污水廠進行設備節能診斷、汰換老舊馬達，並評估提高綠電採購比例。</p>
+                    <strong class="text-blue-800 text-base">耗電熱點分析結論：污水處理廠為絕對大宗</strong><br>
+                    在全機關盤查的細部機構中，<strong class="text-rose-600">前 10 大耗電單位全數為「園管局轄下之污水處理廠」或「水利署本署」</strong>。這些基礎設施需 24 小時運轉處理廢水或進行水利調度，耗電量極大。未來的減碳預算應優先投入於這些廠區的「高效率馬達替換」、「變頻系統導入」及「綠電/太陽能板建置」。
                 </div>
             </div>
 
-            <!-- 單位排名長條圖 -->
-            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-                <h3 class="text-lg font-bold text-gray-700 mb-4">單位排放當量排名 (範疇二外購電力)</h3>
-                <div class="relative h-96 w-full">
-                    <canvas id="scope2BarChart"></canvas>
+            <!-- Charts Row 1: Top 15 & Donut -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Top 15 Bar Chart -->
+                <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">全機關 Top 15 耗電附屬機構排行榜</h3>
+                        <span class="text-xs bg-rose-100 text-rose-700 px-2 py-1 rounded">佔總用電極高比例</span>
+                    </div>
+                    <div class="relative h-80 w-full">
+                        <canvas id="top15Chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Donut Chart by Parent Unit -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">各局處範疇二佔比</h3>
+                    <div class="relative h-64 w-full flex justify-center mt-4">
+                        <canvas id="unitDonutChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-gray-400 mt-4">註：園管局因轄下工業區與污水廠眾多，佔比最高</p>
                 </div>
             </div>
-            
-            <!-- 數據明細表 (前五大) -->
-            <div class="bg-white rounded-xl shadow-sm p-6 overflow-hidden">
-                 <h3 class="text-lg font-bold text-gray-700 mb-4">耗能前五大單位數據明細</h3>
-                 <div class="overflow-x-auto">
-                     <table class="min-w-full divide-y divide-gray-200 text-sm">
-                         <thead class="bg-gray-50">
-                             <tr>
-                                 <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">單位名稱</th>
-                                 <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">外購電力碳排 (噸 CO2e)</th>
-                                 <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">佔範疇二比例</th>
-                             </tr>
-                         </thead>
-                         <tbody class="bg-white divide-y divide-gray-200">
-                             <tr>
-                                 <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-800">1. 園管局</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-right text-blue-600 font-medium">18,897.37</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-500 h-2.5 rounded-full" style="width: 67%"></div></div><span class="text-xs text-gray-500 mt-1 block">67.0%</span></td>
-                             </tr>
-                             <tr>
-                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">2. 水利署</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">3,172.56</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-400 h-2.5 rounded-full" style="width: 11%"></div></div><span class="text-xs text-gray-500 mt-1 block">11.2%</span></td>
-                             </tr>
-                             <tr>
-                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">3. 標準局</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">2,071.46</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-300 h-2.5 rounded-full" style="width: 7%"></div></div><span class="text-xs text-gray-500 mt-1 block">7.3%</span></td>
-                             </tr>
-                             <tr>
-                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">4. 智慧局</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">1,174.65</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-200 h-2.5 rounded-full" style="width: 4%"></div></div><span class="text-xs text-gray-500 mt-1 block">4.2%</span></td>
-                             </tr>
-                             <tr>
-                                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-700">5. 部本部</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-right text-gray-600">887.04</td>
-                                 <td class="px-6 py-4 whitespace-nowrap text-left"><div class="w-full bg-gray-200 rounded-full h-2.5 max-w-[100px]"><div class="bg-blue-200 h-2.5 rounded-full" style="width: 3%"></div></div><span class="text-xs text-gray-500 mt-1 block">3.1%</span></td>
-                             </tr>
-                         </tbody>
-                     </table>
-                 </div>
+
+            <!-- Interactive Department Explorer -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h3 class="text-lg font-bold text-gray-800">各局處轄下機構用電分佈 (動態查詢)</h3>
+                    <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                        <label for="unitSelect" class="text-sm font-medium text-gray-600">選擇所屬局處：</label>
+                        <select id="unitSelect" onchange="updateDeptChart(this.value)" class="bg-white border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-1.5 outline-none">
+                            <!-- Options generated by JS -->
+                        </select>
+                    </div>
+                </div>
+                <div class="relative h-80 w-full">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Full Data Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col" style="max-height: 600px;">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center sticky top-0 z-10">
+                    <h2 class="text-lg font-bold text-gray-800">完整附屬機構外購電力盤查清冊</h2>
+                    <div class="text-xs text-gray-500">依排放量由高至低排序</div>
+                </div>
+                <div class="overflow-y-auto flex-grow relative">
+                    <table class="w-full text-left text-sm text-gray-600 relative">
+                        <thead class="text-xs text-gray-500 uppercase bg-white shadow-sm sticky top-0 z-10">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 font-semibold w-16 text-center">排名</th>
+                                <th scope="col" class="px-6 py-3 font-semibold w-32">所屬局處</th>
+                                <th scope="col" class="px-6 py-3 font-semibold">機構/設施名稱</th>
+                                <th scope="col" class="px-6 py-3 font-semibold text-right text-blue-600 w-48">範疇二 排放量 (噸 CO2e)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body-scope2" class="divide-y divide-gray-100">
+                            <!-- Rows populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     </main>
 
     <!-- JavaScript 資料與互動邏輯 -->
     <script>
-        // --- 核心資料集 ---
+        // --- 核心資料集 (彙整用) ---
         const data = [
             { name: '園管局', s1: 799.76, s2: 18901.37 },
             { name: '水利署', s1: 1065.20, s2: 3172.56 },
@@ -268,22 +291,206 @@
             data: [1155.87, 375.8, 316.63, 276.1, 236.7, 235.5, 28.1] 
         };
 
+        // 範疇二 140+ 細部機構用電資料
+        const scope2RawData = [
+            { unit: "中企署", name: "中企署南區服務處", value: 13.564 },
+            { unit: "中企署", name: "經濟部中小及新創企業署中區服務處", value: 11.5272 },
+            { unit: "中企署", name: "經濟部中小及新創企業署本部", value: 134.8179 },
+            { unit: "水利署", name: "水利署", value: 1401.5015 },
+            { unit: "水利署", name: "水利署北區水資源分署", value: 66.7392 },
+            { unit: "水利署", name: "經濟部水利署中區水資源分署", value: 155.307 },
+            { unit: "水利署", name: "經濟部水利署水利規劃分署", value: 143.6315 },
+            { unit: "水利署", name: "經濟部水利署南區水資源分署", value: 360.4296 },
+            { unit: "水利署", name: "經濟部水利署第一河川分署", value: 79.4926 },
+            { unit: "水利署", name: "經濟部水利署第七河川分署", value: 84.7702 },
+            { unit: "水利署", name: "經濟部水利署第九河川分署", value: 61.5688 },
+            { unit: "水利署", name: "經濟部水利署第二河川分署", value: 70.1065 },
+            { unit: "水利署", name: "經濟部水利署第八河川分署", value: 71.0621 },
+            { unit: "水利署", name: "經濟部水利署第十河川分署", value: 173.484 },
+            { unit: "水利署", name: "經濟部水利署第三河川分署", value: 81.6418 },
+            { unit: "水利署", name: "經濟部水利署第五河川分署", value: 83.3861 },
+            { unit: "水利署", name: "經濟部水利署第六河川分署", value: 132.3407 },
+            { unit: "水利署", name: "經濟部水利署第四河川分署", value: 116.8803 },
+            { unit: "水利署", name: "經濟部水利署臺北水源特定區管理分署", value: 90.2165 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(三峽庫房)", value: 0.1569 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(中心本部)", value: 57.5912 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(北區保安科)", value: 2.5672 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(西區保安科)", value: 3.3668 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(東區辦公室)", value: 11.5846 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(新北市辦公室)", value: 241.3039 },
+            { unit: "地礦中心", name: "經濟部地質調查及礦業管理中心(礦業文化推廣教室)", value: 3.8678 },
+            { unit: "投資司", name: "經濟部/投資促進司", value: 33.3808 },
+            { unit: "投審司", name: "經濟部投資審議司", value: 75.7329 },
+            { unit: "能源署", name: "經濟部能源署", value: 149.5764 },
+            { unit: "商業署", name: "經濟部商業發展署南投辦公區", value: 113.9892 },
+            { unit: "商業署", name: "經濟部商業發展署臺北辦公區", value: 114.6254 },
+            { unit: "國營司", name: "經濟部國營司", value: 64.1545 },
+            { unit: "產發署", name: "經濟部產業發展署", value: 285.0269 },
+            { unit: "產發署", name: "經濟部產業發展署南部服務處", value: 0.4695 },
+            { unit: "部本部", name: "經濟部本部秘書處檔案科", value: 25.7477 },
+            { unit: "部本部", name: "經濟部部本部", value: 861.2902 },
+            { unit: "智慧局", name: "智慧財產局局本部", value: 1100.5128 },
+            { unit: "智慧局", name: "智慧財產局深坑辦公室", value: 74.1336 },
+            { unit: "貿易署", name: "國際貿易署高雄辦事處", value: 19.9066 },
+            { unit: "貿易署", name: "經濟部國際貿易署-署本部", value: 555.5754 },
+            { unit: "園管局", name: "林園產業園區服務中心", value: 22.6951 },
+            { unit: "園管局", name: "高屏分局 大發(兼鳳山)產業園區服務中心-鳳山中心", value: 4.7209 },
+            { unit: "園管局", name: "高屏分局 大發產業園區服務中心-大發中心", value: 30.8882 },
+            { unit: "園管局", name: "高屏分局 屏南產產業園區服務中心-屏南中心", value: 15.9672 },
+            { unit: "園管局", name: "高屏分局 豐樂產業園區服務中心-豐樂中心", value: 9.9573 },
+            { unit: "園管局", name: "高屏分局-仁大產業園區服務中心-大社", value: 8.5045 },
+            { unit: "園管局", name: "高屏分局-仁武產業園區服務中心", value: 7.8395 },
+            { unit: "園管局", name: "高屏分局-內埔產業園區服務中心", value: 9.7023 },
+            { unit: "園管局", name: "高屏分局-永安(兼北高雄)產業園區服務中心", value: 13.4364 },
+            { unit: "園管局", name: "高屏分局-屏東科技產業園區辦公室", value: 106.778 },
+            { unit: "園管局", name: "高雄臨海產葉園區服務中心", value: 25.6965 },
+            { unit: "園管局", name: "產業園區管理局桃園幼獅產業園區服務中心", value: 22.5152 },
+            { unit: "園管局", name: "產業園區管理局高屏分局-仁大產業園區高雄海洋放流管制中心", value: 677.5195 },
+            { unit: "園管局", name: "產業園區管理局高屏分局-永安產業園區-污水處理廠", value: 709.7866 },
+            { unit: "園管局", name: "產業園區管理局高屏分局-林園聯合污水處理廠", value: 888.9396 },
+            { unit: "園管局", name: "產業園區管理局高屏分局-屏南產業園區污水處理廠", value: 505.1892 },
+            { unit: "園管局", name: "產業園區管理局高屏分局-鳳山產業園區污水處理廠", value: 66.5875 },
+            { unit: "園管局", name: "產業園區管理局高屏分局-臨海聯合污水處理廠", value: 1362.5263 },
+            { unit: "園管局", name: "產業園區管理局高雄軟體園區辦公室", value: 10.3465 },
+            { unit: "園管局", name: "產業園區管理局臺中分局大甲幼獅產業園區服務中心-污水處理廠", value: 527.8938 },
+            { unit: "園管局", name: "產業園區管理局臺中分局 芳苑產業園區", value: 13.0692 },
+            { unit: "園管局", name: "產業園區管理局臺中分局 臺中產業園區-污水處理廠", value: 1438.2108 },
+            { unit: "園管局", name: "產業園區管理局臺中分局臺中軟體辦公室", value: 19.4889 },
+            { unit: "園管局", name: "產業園區管理局臺中分局南崗(兼竹山)產業園區服務中心-南崗服務大樓", value: 6.6774 },
+            { unit: "園管局", name: "產業園區管理局臺中分局南崗(兼竹山)產業園區服務中心-污水處理廠", value: 1130.964 },
+            { unit: "園管局", name: "產業園區管理局臺中分局彰濱產業園區服務中心-線西污水處理廠", value: 682.6548 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 土城產業園區服務中心", value: 1016.4494 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 中壢產業園區服務中心", value: 42.2143 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 林口(工二)產業園區監測站", value: 27.6069 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 林口(工二)產業園區辦公分處", value: 3.7679 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 林口產業園區服務中心-工三中心", value: 14.5641 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 美崙(兼和平及光華)產業園區服務中心(和平辦事處)", value: 13.3086 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 美崙(兼和平及光華)產業園區服務中心-光華辦事處", value: 0.109 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 美崙(兼和平及光華)產業園區服務中心-和平污水廠", value: 11.6546 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 美崙(兼和平及光華)產業園區服務中心-美崙中心", value: 15.9282 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 美崙產業園區光華-污水處理廠", value: 29.1647 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 新北產業園區服務中心", value: 46.2306 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 新北產業園區服務中心新北污水廠", value: 372.5313 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 龍德(兼利澤)產業園區利澤污水廠", value: 706.3358 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 龍德(兼利澤)產業園區服務中心-利澤中心", value: 34.9205 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 龍德(兼利澤)產業園區龍德污水廠", value: 375.8441 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 龜山產業園區服務中心", value: 1023.1404 },
+            { unit: "園管局", name: "產業園區管理局臺北分局 觀音產業園區服務中心", value: 50.9295 },
+            { unit: "園管局", name: "產業園區管理局臺北分局土城產業園區服務中心", value: 30.6373 },
+            { unit: "園管局", name: "產業園區管理局臺北分局大武崙(兼瑞芳)產業園區大武崙污水廠", value: 190.2592 },
+            { unit: "園管局", name: "產業園區管理局臺北分局大武崙(兼瑞芳)產業園區服務中心", value: 17.4152 },
+            { unit: "園管局", name: "產業園區管理局臺北分局大武崙(兼瑞芳)產業園區服務中心-瑞芳中心", value: 9.224 },
+            { unit: "園管局", name: "產業園區管理局臺北分局本部", value: 23.2062 },
+            { unit: "園管局", name: "產業園區管理局臺北分局桃園幼獅產業園區污水廠", value: 156.3777 },
+            { unit: "園管局", name: "產業園區管理局臺北分局龍德(兼利澤)產業園區服務中心-龍德中心", value: 1.4049 },
+            { unit: "園管局", name: "產業園區管理局臺北辦公室1", value: 21.7656 },
+            { unit: "園管局", name: "產業園區管理局臺北辦公室2", value: 121.6369 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 民雄(兼頭橋)產業園區 污水處理廠", value: 704.5522 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 永康(兼新市)產業園區-污水處理", value: 341.2231 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 安平產業園區-污水處理廠", value: 452.765 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 官田產業園區-污水處理廠", value: 640.5176 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 雲林產業園區-污水處理廠", value: 480.6247 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 新營產業園區服務中心-污水處理廠", value: 397.2765 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 嘉太(兼中埔)產業園區-污水處理廠", value: 275.755 },
+            { unit: "園管局", name: "產業園區管理局臺南分局 臺南產業園區服務中心-污水處理廠", value: 1095.0538 },
+            { unit: "園管局", name: "產業園區管理局環安勞動組臺中辦公室", value: 50.0307 },
+            { unit: "園管局", name: "園管局高屏分局內埔產業園區污水處理廠", value: 455.3371 },
+            { unit: "園管局", name: "經濟部大甲幼獅產業園區服務中心", value: 31.3608 },
+            { unit: "園管局", name: "經濟部大園產業園區服務中心", value: 25.5766 },
+            { unit: "園管局", name: "經濟部平鎮產業園區服務中心", value: 11.5359 },
+            { unit: "園管局", name: "經濟部民雄(兼頭橋)產業園區服務中心", value: 10.8473 },
+            { unit: "園管局", name: "經濟部屏東產業園區服務中心", value: 6.0994 },
+            { unit: "園管局", name: "經濟部產業園區管理局局本部", value: 100.5752 },
+            { unit: "園管局", name: "經濟部產業園區管理局勞工大樓", value: 7.6409 },
+            { unit: "園管局", name: "經濟部產業園區管理局綜合大樓", value: 47.9541 },
+            { unit: "園管局", name: "經濟部產業園區管理局環保大樓", value: 46.2297 },
+            { unit: "園管局", name: "經濟部產業管理局高屏分局-前鎮科技園區辦公室", value: 112.2427 },
+            { unit: "園管局", name: "經濟部新竹產業園區服務中心", value: 29.2264 },
+            { unit: "園管局", name: "經濟部樹林產業園區服務中心", value: 9.0527 },
+            { unit: "園管局", name: "經濟部豐田(兼元長)產業園區服務中心", value: 11.5064 },
+            { unit: "園管局", name: "臺中分局", value: 150.1253 },
+            { unit: "園管局", name: "臺中分局 全興產業園區", value: 25.8511 },
+            { unit: "園管局", name: "臺中分局 潭子辦公室-行政大樓前棟", value: 82.3622 },
+            { unit: "園管局", name: "臺中分局 潭子辦公室-行政大樓後棟", value: 7.7537 },
+            { unit: "園管局", name: "臺中分局大里產業園區服務中心", value: 13.9117 },
+            { unit: "園管局", name: "臺中分局南崗(兼竹山)產業園區服務中心-竹山服務大樓", value: 9.0199 },
+            { unit: "園管局", name: "臺中分局彰濱產業園區服務中心-鹿港服務大樓", value: 124.5482 },
+            { unit: "園管局", name: "臺中分局彰濱產業園區服務中心-線西服務大樓", value: 41.712 },
+            { unit: "園管局", name: "臺中分局福興(兼埤頭及田中)產業園區服務中心-田中中心", value: 5.3407 },
+            { unit: "園管局", name: "臺中分局福興(兼埤頭及田中)產業園區服務中心-埤頭中心", value: 3.7328 },
+            { unit: "園管局", name: "臺中分局福興(兼埤頭及田中)產業園區服務中心-福興中心", value: 16.2116 },
+            { unit: "園管局", name: "臺中分局臺中產業園區服務中心", value: 15.3695 },
+            { unit: "園管局", name: "臺中分局臺中港園區-關聯大樓", value: 2.133 },
+            { unit: "園管局", name: "臺中分局臺中港關連產業園區服務中心", value: 14.7357 },
+            { unit: "園管局", name: "臺中分局潭子園區-消防隊", value: 0.547 },
+            { unit: "園管局", name: "臺中分局潭子園區-清潔隊", value: 5.7695 },
+            { unit: "園管局", name: "臺中分局頭份(兼竹南及銅鑼)產業園區服務中心-竹南中心", value: 3.7019 },
+            { unit: "園管局", name: "臺中分局頭份(兼竹南及銅鑼)產業園區服務中心-銅鑼中心", value: 12.7804 },
+            { unit: "園管局", name: "臺南分局 官田產業園區服務中心", value: 13.7759 },
+            { unit: "園管局", name: "臺南分局 雲林離島式基礎產業園區服務中心", value: 84.4779 },
+            { unit: "園管局", name: "臺南分局 斗六產業園區服務中心-斗六中心", value: 29.9947 },
+            { unit: "園管局", name: "臺南分局 永康(兼新市)產業園區服務中心", value: 10.7494 },
+            { unit: "園管局", name: "臺南分局 安平產業園區服務中心-安平中心", value: 31.1342 },
+            { unit: "園管局", name: "臺南分局 朴子(兼義竹)產業園區服務中心-朴子中心", value: 7.0522 },
+            { unit: "園管局", name: "臺南分局 朴子(兼義竹)產業園區服務中心-義竹中心", value: 0.8902 },
+            { unit: "園管局", name: "臺南分局 雲林產業園區服務中心-雲林中心", value: 57.354 },
+            { unit: "園管局", name: "臺南分局 新營產業園區服務中心", value: 11.219 },
+            { unit: "園管局", name: "臺南分局 嘉太(兼中埔)產業園區服務中心-嘉太中心", value: 10.5237 },
+            { unit: "園管局", name: "臺南分局 臺南產業園區服務中心", value: 86.0267 },
+            { unit: "經培所", name: "經貿人員培訓所", value: 117.2799 },
+            { unit: "標準局", name: "經濟部標準檢驗局汐止天線中心", value: 8.6552 },
+            { unit: "標準局", name: "經濟部標準檢驗局汐止度量衡實驗室", value: 36.5549 },
+            { unit: "標準局", name: "經濟部標準檢驗局汐止電氣大樓", value: 154.7894 },
+            { unit: "標準局", name: "經濟部標準檢驗局局本部", value: 682.1808 },
+            { unit: "標準局", name: "經濟部標準檢驗局承德路辦公室", value: 41.138 },
+            { unit: "標準局", name: "經濟部標準檢驗局花蓮分局分局本部", value: 66.684 },
+            { unit: "標準局", name: "經濟部標準檢驗局花蓮分局臺東辦事處", value: 3.0983 },
+            { unit: "標準局", name: "經濟部標準檢驗局度量衡辦公室", value: 36.1368 },
+            { unit: "標準局", name: "經濟部標準檢驗局高雄分局五甲檢定場", value: 2.8747 },
+            { unit: "標準局", name: "經濟部標準檢驗局高雄分局分局本部", value: 147.3666 },
+            { unit: "標準局", name: "經濟部標準檢驗局高雄分局金門辦事處", value: 3.4 },
+            { unit: "標準局", name: "經濟部標準檢驗局高雄分局度量衡辦公室", value: 9.3044 },
+            { unit: "標準局", name: "經濟部標準檢驗局高雄分局澎湖辦事處", value: 2.6023 },
+            { unit: "標準局", name: "經濟部標準檢驗局基隆分局五堵辦事處", value: 31.9097 },
+            { unit: "標準局", name: "經濟部標準檢驗局基隆分局分局本部", value: 90.955 },
+            { unit: "標準局", name: "經濟部標準檢驗局基隆分局仙洞試驗室", value: 1.1186 },
+            { unit: "標準局", name: "經濟部標準檢驗局基隆分局馬祖辦事處", value: 3.5778 },
+            { unit: "標準局", name: "經濟部標準檢驗局基隆分局蘇澳辦事處", value: 9.0664 },
+            { unit: "標準局", name: "經濟部標準檢驗局新竹分局分局本部", value: 37.8076 },
+            { unit: "標準局", name: "經濟部標準檢驗局新竹分局桃園辦事處", value: 78.229 },
+            { unit: "標準局", name: "經濟部標準檢驗局新竹分局機場辦事處", value: 17.6812 },
+            { unit: "標準局", name: "經濟部標準檢驗局臺中分局分局本部", value: 162.9043 },
+            { unit: "標準局", name: "經濟部標準檢驗局臺中分局員林辦事處", value: 7.7613 },
+            { unit: "標準局", name: "經濟部標準檢驗局臺中分局臺中港口辦事處", value: 24.2615 },
+            { unit: "標準局", name: "經濟部標準檢驗局臺南分局斗六辦事處", value: 2.428 },
+            { unit: "標準局", name: "經濟部標準檢驗局臺南分局度量衡辦公室", value: 72.4863 },
+            { unit: "標準局", name: "經濟部標準檢驗局臺南分局嘉義辦事處", value: 5.0649 },
+            { unit: "標準局", name: "經濟部標準檢驗局銅鑼儲能實驗室", value: 175.7592 },
+            { unit: "標準局", name: "經濟部標準檢驗局樹林輪檢場", value: 7.9632 },
+            { unit: "標準局", name: "標準檢驗局臺南分局分局本部", value: 150.6941 }
+        ];
+
         // --- Chart 實例儲存區 (避免重複渲染錯誤) ---
         let totalChartInst = null;
         let s1BarChartInst = null;
         let s1PieChartInst = null;
-        let s2BarChartInst = null;
+        let top15ChartInst = null;
+        let unitDonutChartInst = null;
+        let deptChartInst = null;
+
+        // 格式化輔助函數
+        const fmt = (num) => num.toLocaleString('zh-TW', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const shortName = (name) => name.length > 20 ? name.substring(0, 20) + '...' : name;
 
         // 全域 Chart.js 設定
         Chart.defaults.font.family = "'Noto Sans TC', sans-serif";
         Chart.defaults.color = '#6b7280';
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
 
-        // --- 初始化圖表函數 ---
-
+        // --- 初始化圖表函數 (分頁1) ---
         function renderTotalChart() {
             const ctx = document.getElementById('totalChart').getContext('2d');
-            
-            // 依總排放量排序
             const sortedData = [...data].sort((a, b) => (b.s1 + b.s2) - (a.s1 + a.s2));
             
             if (totalChartInst) totalChartInst.destroy();
@@ -295,15 +502,13 @@
                         {
                             label: '範疇一 (直接排放)',
                             data: sortedData.map(d => d.s1),
-                            backgroundColor: '#10b981', // emerald-500
-                            borderWidth: 0,
+                            backgroundColor: '#10b981', 
                             borderRadius: 4
                         },
                         {
                             label: '範疇二 (外購電力)',
                             data: sortedData.map(d => d.s2),
-                            backgroundColor: '#3b82f6', // blue-500
-                            borderWidth: 0,
+                            backgroundColor: '#3b82f6', 
                             borderRadius: 4
                         }
                     ]
@@ -323,8 +528,8 @@
             });
         }
 
+        // --- 初始化圖表函數 (分頁2) ---
         function renderScope1Charts() {
-            // 1. 範疇一 柱狀圖 (獨立排序)
             const ctxBar = document.getElementById('scope1BarChart').getContext('2d');
             const sortedS1 = [...data].sort((a, b) => b.s1 - a.s1);
 
@@ -336,14 +541,14 @@
                     datasets: [{
                         label: '範疇一排放當量',
                         data: sortedS1.map(d => d.s1),
-                        backgroundColor: '#34d399', // emerald-400
+                        backgroundColor: '#34d399', 
                         borderRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    indexAxis: 'y', // 水平長條圖
+                    indexAxis: 'y', 
                     scales: {
                         x: { grid: { borderDash: [4, 4], color: '#e5e7eb' } },
                         y: { grid: { display: false } }
@@ -352,7 +557,6 @@
                 }
             });
 
-            // 2. 範疇一 圓餅圖
             const ctxPie = document.getElementById('scope1PieChart').getContext('2d');
             if (s1PieChartInst) s1PieChartInst.destroy();
             s1PieChartInst = new Chart(ctxPie, {
@@ -361,15 +565,7 @@
                     labels: scope1Sources.labels,
                     datasets: [{
                         data: scope1Sources.data,
-                        backgroundColor: [
-                            '#f97316', // orange-500 (汽油)
-                            '#0ea5e9', // sky-500 (R410)
-                            '#10b981', // emerald-500 (廢水)
-                            '#8b5cf6', // violet-500 (R134)
-                            '#ef4444', // red-500 (柴油)
-                            '#3b82f6', // blue-500 (R32)
-                            '#9ca3af'  // gray-400 (其他)
-                        ],
+                        backgroundColor: ['#f97316', '#0ea5e9', '#10b981', '#8b5cf6', '#ef4444', '#3b82f6', '#9ca3af'],
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -382,16 +578,7 @@
                         legend: { position: 'bottom' },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += context.parsed + ' 噸';
-                                    }
-                                    return label;
-                                }
+                                label: (context) => ` ${context.label}: ${context.parsed} 噸`
                             }
                         }
                     }
@@ -399,19 +586,24 @@
             });
         }
 
-        function renderScope2Chart() {
-            const ctx = document.getElementById('scope2BarChart').getContext('2d');
-            const sortedS2 = [...data].sort((a, b) => b.s2 - a.s2);
+        // --- 初始化圖表函數 (分頁3) ---
+        function renderScope2Charts() {
+            // 前置作業：排序並準備資料
+            const sortedRawData = [...scope2RawData].sort((a, b) => b.value - a.value);
+            const totalEmissions = sortedRawData.reduce((sum, d) => sum + d.value, 0);
 
-            if (s2BarChartInst) s2BarChartInst.destroy();
-            s2BarChartInst = new Chart(ctx, {
+            // 1. Top 15 Facilities Chart
+            const top15Data = sortedRawData.slice(0, 15);
+            const ctxTop15 = document.getElementById('top15Chart').getContext('2d');
+            if (top15ChartInst) top15ChartInst.destroy();
+            top15ChartInst = new Chart(ctxTop15, {
                 type: 'bar',
                 data: {
-                    labels: sortedS2.map(d => d.name),
+                    labels: top15Data.map(d => shortName(d.name)),
                     datasets: [{
-                        label: '範疇二排放當量 (噸)',
-                        data: sortedS2.map(d => d.s2),
-                        backgroundColor: '#60a5fa', // blue-400
+                        label: '外購電力排碳量 (噸 CO2e)',
+                        data: top15Data.map(d => d.value),
+                        backgroundColor: top15Data.map(d => d.name.includes('污水') ? '#f43f5e' : '#3b82f6'),
                         borderRadius: 4
                     }]
                 },
@@ -419,25 +611,149 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { 
-                            type: 'logarithmic', // 因為園管局數值太大，使用對數座標讓其他單位也清晰可見
-                            title: { display: true, text: '對數級距 (Log Scale)' }
-                        },
-                        x: { grid: { display: false } }
+                        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font: { size: 11 } } },
+                        y: { border: { display: false } }
                     },
-                    plugins: { 
+                    plugins: {
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y.toLocaleString() + ' 噸 CO2e';
-                                }
+                                title: (context) => top15Data[context[0].dataIndex].name,
+                                label: (context) => ` 排碳量: ${fmt(context.raw)} 噸`
                             }
                         }
                     }
                 }
             });
+
+            // 2. Unit Aggregation Donut Chart
+            const unitSums = {};
+            sortedRawData.forEach(d => { unitSums[d.unit] = (unitSums[d.unit] || 0) + d.value; });
+            const unitArr = Object.keys(unitSums).map(k => ({unit: k, value: unitSums[k]})).sort((a,b)=>b.value-a.value);
+            
+            let donutLabels = [];
+            let donutData = [];
+            let otherSum = 0;
+            unitArr.forEach((d, idx) => {
+                if(idx < 5) {
+                    donutLabels.push(d.unit);
+                    donutData.push(d.value);
+                } else {
+                    otherSum += d.value;
+                }
+            });
+            if(otherSum > 0) {
+                donutLabels.push('其他單位');
+                donutData.push(otherSum);
+            }
+
+            const ctxDonut = document.getElementById('unitDonutChart').getContext('2d');
+            if (unitDonutChartInst) unitDonutChartInst.destroy();
+            unitDonutChartInst = new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: donutLabels,
+                    datasets: [{
+                        data: donutData,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#94a3b8'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => ` ${context.label}: ${fmt(context.raw)} 噸 (${((context.raw / totalEmissions)*100).toFixed(1)}%)`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Populate Select Options for Department Chart
+            const uniqueUnits = [...new Set(sortedRawData.map(d => d.unit))].sort();
+            const selectEl = document.getElementById('unitSelect');
+            selectEl.innerHTML = ''; // Clear existing
+            uniqueUnits.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u;
+                opt.innerText = u;
+                if(u === '園管局') opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+
+            // 觸發初始化的 Department Chart
+            updateDeptChart('園管局');
+
+            // 4. Populate Full Data Table
+            const tbody = document.getElementById('table-body-scope2');
+            tbody.innerHTML = ''; // clear table
+            sortedRawData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors";
+                
+                let rankHtml = `<span class="text-gray-500">${index + 1}</span>`;
+                if (index < 3) rankHtml = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-100 text-rose-700 font-bold text-xs">${index + 1}</span>`;
+                else if (index < 10) rankHtml = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-700 font-bold text-xs">${index + 1}</span>`;
+
+                let unitBadgeColor = 'bg-gray-100 text-gray-700';
+                if(row.unit === '園管局') unitBadgeColor = 'bg-blue-100 text-blue-700';
+                else if (row.unit === '水利署') unitBadgeColor = 'bg-emerald-100 text-emerald-700';
+                else if (row.unit === '標準局') unitBadgeColor = 'bg-amber-100 text-amber-700';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-3 text-center font-medium">${rankHtml}</td>
+                    <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${unitBadgeColor}">${row.unit}</span></td>
+                    <td class="px-6 py-3 font-medium text-gray-800">${row.name}</td>
+                    <td class="px-6 py-3 text-right font-bold text-blue-600">${fmt(row.value)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
+
+        // --- 部門動態查詢圖表更新 ---
+        window.updateDeptChart = function(unitName) {
+            const ctxDept = document.getElementById('departmentChart').getContext('2d');
+            const filteredData = scope2RawData.filter(d => d.unit === unitName).sort((a,b) => b.value - a.value);
+            const chartData = filteredData.length > 25 ? filteredData.slice(0, 25) : filteredData;
+            
+            if(deptChartInst) deptChartInst.destroy();
+            
+            deptChartInst = new Chart(ctxDept, {
+                type: 'bar',
+                data: {
+                    labels: chartData.map(d => shortName(d.name)),
+                    datasets: [{
+                        label: `${unitName} 轄下機構用電碳排`,
+                        data: chartData.map(d => d.value),
+                        backgroundColor: '#6366f1', // Indigo
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, font:{size:10} } },
+                        y: { border: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => chartData[context[0].dataIndex].name,
+                                label: (context) => ` ${fmt(context.raw)} 噸 CO2e`
+                            }
+                        }
+                    }
+                }
+            });
+        };
 
         // --- 分頁切換邏輯 ---
         function switchTab(tabId) {
@@ -454,7 +770,7 @@
             setTimeout(() => {
                 if (tabId === 'total') renderTotalChart();
                 if (tabId === 'scope1') renderScope1Charts();
-                if (tabId === 'scope2') renderScope2Chart();
+                if (tabId === 'scope2') renderScope2Charts();
             }, 50);
         }
 
